@@ -1,0 +1,8 @@
+---
+_flow_tools_packages:
+  default:
+    - flow-tools
+
+flow_tools_packages: "{{ _flow_tools_packages[ ansible_os_family ] | default( _flow_tools_packages['default'] ) }}"
+
+

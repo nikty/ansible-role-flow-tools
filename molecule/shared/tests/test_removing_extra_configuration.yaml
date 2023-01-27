@@ -1,0 +1,26 @@
+- hosts: all
+  become: yes
+  vars:
+    stale_files:
+      - /etc/systemd/system/flow-capture-stale1.service
+      - /etc/systemd/system/flow-capture-stale2.service
+  tasks:
+
+    - name: Touch stale files
+      file:
+        path: "{{ item }}"
+        state: touch
+      loop: "{{ stale_files }}"
+      
+    - include_role:
+        name: flow_tools
+    
+    - stat:
+        path: "{{ item }}"
+      loop: "{{ stale_files }}"
+      register: result
+
+    - assert:
+        that: not (result.results | selectattr('stat.exists'))
+        success_msg: Stale files are removed
+          

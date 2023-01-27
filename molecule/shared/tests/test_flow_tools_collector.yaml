@@ -1,0 +1,18 @@
+- hosts: all
+  become: yes
+  tasks:
+
+    - include_role:
+        name: "flow_tools"
+      vars:
+        flow_tools_collectors:
+          - name: example-1
+            flows_dir: /flows/example-1
+            port: 558
+            rotate_interval: 900
+            options:
+              compression: 1
+              expire_size: 300G
+              nesting_level: 3
+              rotations: 70
+            

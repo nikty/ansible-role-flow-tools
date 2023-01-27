@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=netflow capture daemon
+After=network.target auditd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/flow-capture -D "{{ item.listen_address | default( flow_tools_capture_listen_address ) }}/{{ item.remote_address | default(flow_tools_capture_remote_address) }}/{{ item.port | default( flow_tools_capture_port ) }}"
+{{- " " }}-w "{{ item.flows_dir }}"
+{%- if item.rotate_interval is defined and 'rotations' not in item.options | default({}) %}
+{{- " " }}{{ flow_tools_capture_options['rotations'] }} {{ (24*3600/(item.rotate_interval | default(flow_tools_capture_rotate_interva)) - 1) | int }}
+{%- endif %}
+{%- for opt in item.options | default({}) -%}
+  {{- " " }}{{ flow_tools_capture_options[opt] }} {{ item.options[opt] }}
+{%- endfor %}
+
+  
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,16 @@
+---
+flow_tools_collectors: []
+flow_tools_capture_port: 2055
+flow_tools_capture_remote_address: 0
+flow_tools_capture_listen_address: 0
+flow_tools_capture_rotate_interval: 900 # seconds
+
+flow_tools_remove_unmanaged: yes
+
+flow_tools_capture_options:
+  compression: '-z'
+  expire_size: '-E'
+  nesting_level: '-N'
+  rotations: '-n'
+
+flow_tools_collector_prefix: "flow-capture-"  

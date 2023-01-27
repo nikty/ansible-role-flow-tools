@@ -1,0 +1,20 @@
+- name: Template systemd service unit
+  template:
+    src: flow-tools-collector.service.j2
+    dest: /etc/systemd/system/{{ flow_tools_collector_prefix }}{{ item.name }}.service
+  register: result
+
+- name: Make flows directory
+  file:
+    path: "{{ item.flows_dir }}"
+    state: directory
+      
+
+- name: Setup systemd service
+  systemd:
+    name: "{{ flow_tools_collector_prefix}}{{ item.name }}"
+    enabled: yes
+    state: started
+    daemon_reload: yes
+    
+    

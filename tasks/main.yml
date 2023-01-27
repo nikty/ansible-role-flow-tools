@@ -1,0 +1,33 @@
+---
+- name: Check collector parameters
+  assert:
+    that: >-
+      not (flow_tools_collectors | selectattr('flows_dir', 'undefined'))
+      and not (flow_tools_collectors | selectattr('name', 'undefined'))
+    fail_msg: "Missing mandatory options in 'flow_tools_collectors'"
+  when: >-
+    flow_tools_collectors | length > 0
+
+- apt:
+    update_cache: yes
+  when: >-
+    ansible_os_family == "Debian"
+    
+- name: Install flow-tools
+  package:
+    name: "{{ flow_tools_packages }}"
+
+- name: Disable default service
+  service:
+    name: flow-capture
+    state: stopped
+    enabled: no
+
+- name: Clean extra configuration
+  include_tasks: clean.yaml
+  when: flow_tools_remove_unmanaged | bool
+      
+- name: Run tasks for flow-tools
+  include_tasks: flow_tools_collector.yaml
+  loop: "{{ flow_tools_collectors }}"
+

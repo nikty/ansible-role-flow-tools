@@ -1,0 +1,37 @@
+- set_fact:
+    _managed_collectors: >-
+      {{ flow_tools_collectors | map(attribute='name') | list }}
+- debug: var=_managed_collectors
+
+- name: Find systemd service files to delete
+  find:
+    paths:
+      - /etc/systemd/system
+    patterns:
+      - "{{ flow_tools_collector_prefix }}*"
+    excludes: >-
+      {{ [ flow_tools_collector_prefix ]
+         | product( _managed_collectors )
+         | map('join', '') | list
+         | product( ['.service'] ) 
+         | map('join', '') | list }}
+  register: result
+  
+- name: Delete extra service files
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ result.files }}"
+
+- service_facts:
+
+- name: Stop and disable stale collector services
+  shell:
+    cmd: |
+      systemctl stop "{{ item.key }}"
+      systemctl disable "{{ item.key }}"
+  when: >-
+    item.key is not match( '(' + [ flow_tools_collector_prefix ] | product(_managed_collectors) | map('join', '') | join('|') + ')' )
+  loop: >-
+    {{ ansible_facts.services | dict2items | selectattr('key', 'match', flow_tools_collector_prefix) | list }}
+
