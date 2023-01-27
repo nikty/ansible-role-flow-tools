@@ -1,5 +1,6 @@
 galaxy_info:
   author: nikty
+  role_name: flow_tools
   description: A role to install and configure flow-tools package
   license: CC0-1.0
   min_ansible_version: 2.1
